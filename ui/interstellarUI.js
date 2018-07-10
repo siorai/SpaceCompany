@@ -28,6 +28,8 @@ Game.interstellarUI = (function(){
 
     instance.initialise = function() {
 
+        console.log("sort out interstellar.update(). too many cycles")
+
         this.tab = Game.ui.createTab({id: 'interstellar', title: 'Interstellar', hidden: 'hidden'});
         this.tab.initialise();
 
@@ -492,7 +494,7 @@ Game.interstellarUI = (function(){
 
         for(var i = 0; i < resources.length; i++){
             var updateList = document.getElementsByClassName("star_" + Game.utils.capitaliseFirst(resources[i]) + "_prod");
-            var perSec = window[resources[i] + "ps"];
+            var perSec = Game.resources.entries[resource].perSecond;
             for(var j = 0; j < updateList.length; j++){
                 updateList[j].innerHTML = Game.settings.format(perSec/4);
             }            
@@ -886,7 +888,7 @@ Game.interstellarUI = (function(){
 
     
 
-    Game.uiComponents.push(instance);
+    //Game.uiComponents.push(instance);
 
     return instance;
 

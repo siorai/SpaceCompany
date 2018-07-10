@@ -1,69 +1,50 @@
+Game.techCategoryData = (function () {
+
+    var instance = {};
+
+    instance.research = {
+        title: 'Research',
+        category: 'research',
+        htmlId: 'research',
+        page: 'tech',
+        items: {
+            technology: {
+                title: 'Technologies',
+                id: 'technologies',
+                name: 'Technologies',
+                htmlId: 'technologies',
+                desc: 'Research new technologies to unlock more mechanics and advance through the game.',
+                category: 'technology',
+                page: 'tech',
+                order: 1, // 1nd category item of the tech page, research menu header
+                unlocked: false
+            }
+        },
+        order: 2, // 2nd category item of the resources page
+        unlocked: false
+    };
+
+    return instance;
+
+}());
+
 Game.techData = (function () {
 
     var instance = {};
 
     var techBase = {
-        id: null,
-        htmlId: null,
-        htmlIdCost: null,
-        htmlIdTitle: null,
-        htmlIdButton: null,
         displayNeedsUpdate: true,
 
         name: 'Research',
         desc: 'Purchase to unlock something.',
-        notifyTitle: null,
-        notifyText: null,
         buttonText: 'Unlock',
 
         current: 0,
         maxLevel: 1,
         unlocked: false,
+        category: 'technology',
+        htmlId: "technology",
 
-        newResources: [],
-        newTechs: [],
-        newTabs: [],
-        tabAlerts: [],
-
-        setId: function(id) {
-            this.id = id;
-            this.htmlId = id;
-            this.htmlIdCost = id + 'Cost';
-            this.htmlIdTitle = id + 'Title';
-            this.htmlIdButton = id + 'Button';
-        },
-
-        getBodyElement: function() {
-            return $('#' + this.htmlId);
-        },
-        getTitleElement: function() {
-            return $('#' + this.htmlIdTitle);
-        },
-        getCostElement: function() {
-            return $('#' + this.htmlIdCost);
-        },
-        getButtonElement: function() {
-            return $('#' + this.htmlIdButton);
-        },
-
-        apply: function(self) {
-            for (var i = 0; i < this.newResources.length; i++) {
-                if (resourcesUnlocked.indexOf(this.newResources[i]) === INDEX_NONE) {
-                    resourcesUnlocked.push(this.newResources[i]);
-                }
-            }
-            for (i = 0; i < this.newTabs.length; i++) {
-                if (tabsUnlocked.indexOf(this.newTabs[i]) === INDEX_NONE) {
-                    tabsUnlocked.push(this.newTabs[i]);
-                }
-            }
-            for (i = 0; i < this.newTechs.length; i++) {
-                Game.tech.unlockTech(this.newTechs[i]);
-            }
-            if (this.onApply !== null) {
-                this.onApply();
-            }
-        },
         // for any tech specific apply changes
         onApply: null
 
@@ -81,7 +62,10 @@ Game.techData = (function () {
             'science': 5
         },
         newTechs: ['unlockOil'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Templates.uiFunctions.showClass('storageUpgrade');
+        }
     });
     
     instance.unlockBasicEnergy = $.extend({}, techBase, {
@@ -94,9 +78,14 @@ Game.techData = (function () {
         cost: {
             'science': 20
         },
-        newResources: ['energyNav', 'charcoalNav'],
         newTechs: ['unlockSolar', 'unlockMachines', 'upgradeEngineTech'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.resources.unlock("energy");
+            Game.resources.unlock("charcoal");
+            Game.buildings.unlock("energyT1");
+            Game.buildings.unlock("charcoalT1")
+        }
     });
 
     instance.unlockOil = $.extend({}, techBase, {
@@ -108,8 +97,11 @@ Game.techData = (function () {
         cost: {
             'science': 30
         },
-        newResources: ['oilNav'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.resources.unlock("oil");
+            Game.buildings.unlock("oilT1");
+        }
     });
 
     instance.unlockSolar = $.extend({}, techBase, {
@@ -122,7 +114,10 @@ Game.techData = (function () {
             'science': 50
         },
         newTechs: ['upgradeSolarTech'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlock("energyT2");
+        }
     });
 
     instance.unlockMachines = $.extend({}, techBase, {
@@ -135,7 +130,14 @@ Game.techData = (function () {
             'science': 100
         },
         newTechs: ['unlockSolarSystem', 'upgradeResourceTech', 'unlockDestruction'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            for(var id in Game.resources.entries){
+                if(id != "energy" && id != "plasma" && id != "science" && id != "rocketFuel"){
+                    Game.buildings.unlock(id + "T2");
+                }
+            }
+        }
     });
 
     instance.unlockDestruction = $.extend({}, techBase, {
@@ -147,7 +149,16 @@ Game.techData = (function () {
         cost: {
             'science': 500
         },
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            console.log("rocketFuel")
+            for(var id in Game.buildings.entries){
+                if(id.indexOf("rocketFuel") == -1){
+                    var data = Game.buildings.entries[id];
+                    //$('#' + data.id + "_destroy")[0].className = "";
+                }
+            }
+        }
     });
 
     instance.unlockSolarSystem = $.extend({}, techBase, {
@@ -161,9 +172,13 @@ Game.techData = (function () {
         cost: {
             'science': 500
         },
-        newTabs: ['solarSystemTab'],
         newTechs: ['unlockLabT2', 'unlockRocketFuelT2'],
-        tabAlerts: ['solarSystem']
+        tabAlerts: ['solarSystem'],
+        onApply: function(){
+            $('#solarTab')[0].className = "";
+            Game.solar.tabUnlocked = true;
+            Game.buildings.entries.rocketFuelT1.unlocked = true;
+        }
     });
 
     instance.unlockRocketFuelT2 = $.extend({}, techBase, {
@@ -177,7 +192,10 @@ Game.techData = (function () {
         },
         newResources: ['rocketFuelT2'],
         newTechs: ['unlockRocketFuelT3'],
-        tabAlerts: ['solarSystem']
+        tabAlerts: ['solarSystem'],
+        onApply: function(){
+            Game.buildings.entries.rocketFuelT2.unlocked = true;
+        }
     });
 
     instance.unlockRocketFuelT3 = $.extend({}, techBase, {
@@ -190,7 +208,10 @@ Game.techData = (function () {
             'science': 3200000
         },
         newResources: ['rocketFuelT3'],
-        tabAlerts: ['solarSystem']
+        tabAlerts: ['solarSystem'],
+        onApply: function(){
+            Game.buildings.entries.rocketFuelT3.unlocked = true;
+        }
     });
 
     instance.unlockLabT2 = $.extend({}, techBase, {
@@ -202,7 +223,11 @@ Game.techData = (function () {
         cost: {
             'science': 500
         },
-        newTechs: ['unlockLabT3']
+        newTechs: ['unlockLabT3'],
+        tabAlerts: ['research'],
+        onApply: function(){
+            Game.buildings.entries.scienceT2.unlocked = true;
+        }
     });
 
     instance.unlockLabT3 = $.extend({}, techBase, {
@@ -214,7 +239,11 @@ Game.techData = (function () {
         cost: {
             'science': 3000
         },
-        newTechs: ['unlockLabT4']
+        newTechs: ['unlockLabT4'],
+        tabAlerts: ['research'],
+        onApply: function(){
+            Game.buildings.entries.scienceT3.unlocked = true;
+        }
     });
 
     instance.unlockLabT4 = $.extend({}, techBase, {
@@ -225,7 +254,12 @@ Game.techData = (function () {
         costType: COST_TYPE.FIXED,
         cost: {
             'science': 50000000
+        },
+        tabAlerts: ['research'],
+        onApply: function(){
+            Game.buildings.entries.scienceT4.unlocked = true;
         }
+
     });
 
     instance.unlockBatteries = $.extend({}, techBase, {
@@ -237,9 +271,12 @@ Game.techData = (function () {
         cost: {
             'science': 15000
         },
-        newResources: ['batteries', 'energyStorageBox'],
         newTechs: ['unlockBatteriesT2'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("energyT1");
+            console.log("energyStorageBox, in energy storage displayNeedsUpdate")
+        }
     });
 
     instance.unlockBatteriesT2 = $.extend({}, techBase, {
@@ -251,9 +288,11 @@ Game.techData = (function () {
         cost: {
             'science': 300000
         },
-        newResources: ['batteriesT2'],
         newTechs: ['unlockBatteriesT3'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("energyT2");
+        }
     });
 
     instance.unlockBatteriesT3 = $.extend({}, techBase, {
@@ -265,9 +304,11 @@ Game.techData = (function () {
         cost: {
             'science': 3000000
         },
-        newResources: ['batteriesT3'],
         newTechs: ['unlockBatteriesT4'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("energyT3");
+        }
     });
 
     instance.unlockBatteriesT4 = $.extend({}, techBase, {
@@ -279,8 +320,10 @@ Game.techData = (function () {
         cost: {
             'science': 30000000
         },
-        newResources: ['batteriesT4'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("energyT4");
+        }
     });
 
     instance.unlockPlasma = $.extend({}, techBase, {
@@ -292,13 +335,11 @@ Game.techData = (function () {
         cost: {
             'science': 40000
         },
-        newResources: ['plasmaNav'],
         newTechs: ['unlockPlasmaTier2'],
         tabAlerts: ['resources'],
         onApply: function() {
-            if (noBorder.indexOf('energyNav') === INDEX_NONE) {
-                noBorder.push('energyNav');
-            }
+            Game.resources.unlock("plasma");
+            Game.buildings.unlock("plasmaT1")
         }
     });
 
@@ -311,8 +352,10 @@ Game.techData = (function () {
         cost: {
             'science': 60000
         },
-        newResources: ['plasmaTier2'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlock("plasmaT2")
+        }
     });
 
     instance.unlockPSU = $.extend({}, techBase, {
@@ -324,9 +367,12 @@ Game.techData = (function () {
         cost: {
             'science': 9500000
         },
-        newResources: ['plasmaStorageUnits', 'plasmaStorageBox'],
         newTechs: ['unlockPSUT2'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("plasmaT1");
+            console.log("plasmaStorageBox")
+        }
     });
 
     instance.unlockPSUT2 = $.extend({}, techBase, {
@@ -338,8 +384,10 @@ Game.techData = (function () {
         cost: {
             'science': 37000000
         },
-        newResources: ['plasmaStorageUnitsT2'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlockStorage("plasmaT2");
+        }
     });
 
     instance.unlockEmc = $.extend({}, techBase, {
@@ -353,7 +401,10 @@ Game.techData = (function () {
         },
         newResources: ['emcPage'],
         newTechs: ['unlockMeteorite'],
-        tabAlerts: ['solCenter']
+        tabAlerts: ['solCenter'],
+        onApply: function(){
+            console.log("EMC")
+        }
     });
 
     instance.unlockMeteorite = $.extend({}, techBase, {
@@ -367,7 +418,11 @@ Game.techData = (function () {
         },
         newResources: ['meteoriteNav', 'meteoriteEMC'],
         newTechs: ['unlockMeteoriteTier1'],
-        tabAlerts: ['resources', 'wonder']
+        tabAlerts: ['resources', 'wonder'],
+        onApply: function(){
+            Game.resources.unlock("meteorite");
+            console.log("meteorietEMC")
+        }
     });
 
     instance.unlockMeteoriteTier1 = $.extend({}, techBase, {
@@ -379,10 +434,11 @@ Game.techData = (function () {
         cost: {
             'science': 75000
         },
-        newResources: ['meteoriteTier1'],
         newTechs: ['unlockMeteoriteTier2'],
-        tabAlerts: ['resources']
-
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlock("meteoriteT1")
+        }
     });
 
     instance.unlockMeteoriteTier2 = $.extend({}, techBase, {
@@ -394,8 +450,10 @@ Game.techData = (function () {
         cost: {
             'science': 75000
         },
-        newResources: ['meteoriteTier2'],
-        tabAlerts: ['resources']
+        tabAlerts: ['resources'],
+        onApply: function(){
+            Game.buildings.unlock("meteoriteT2")
+        }
     });
 
     instance.unlockDyson = $.extend({}, techBase, {
@@ -409,7 +467,10 @@ Game.techData = (function () {
         },
         newResources: ['dysonPage'],
         newTechs: ['unlockDysonSphere'],
-        tabAlerts: ['solCenter']
+        tabAlerts: ['solCenter'],
+        onApply: function(){
+            console.log("unlockDyson")
+        }
     });
 
     instance.unlockDysonSphere = $.extend({}, techBase, {
@@ -422,7 +483,10 @@ Game.techData = (function () {
             'science': 500000
         },
         newResources: ['dysonSphere'],
-        tabAlerts: ['solCenter']
+        tabAlerts: ['solCenter'],
+        onApply: function(){
+            console.log("unlockDyson")
+        }
     });
 
     //Upgrades
@@ -438,12 +502,12 @@ Game.techData = (function () {
         },
         tabAlerts: ['resources'],
         onApply: function() {
-            pumpjackOutput *= 2;
-            heavyDrillOutput *= 2;
-            advancedDrillOutput *= 2;
-            furnaceWoodInput *= 2;
-            furnaceOutput *= 2;
-            laserCutterOutput *= 2;
+            var data = Game.buildings.entries;
+            var resourceList = ["oil", "metal", "gem", "charcoal", "wood"];
+            for(var i = 0; i < resourceList.length; i++){
+                data[resourceList[i] + "T2"].resourcePerSecond[resourceList[i]] *= 2;
+            }
+            data["charcoalT2"].resourcePerSecond.wood *= 2;
         }
     });
 
@@ -458,7 +522,7 @@ Game.techData = (function () {
         },
         tabAlerts: ['resources'],
         onApply: function() {
-            charcoalEngineOutput = 4;
+            Game.buildings.entries.energyT1.resourcePerSecond.energy *= 2;
         }
     });
 
@@ -474,11 +538,11 @@ Game.techData = (function () {
         newTechs: ['unlockBatteries'],
         tabAlerts: ['resources'],
         onApply: function() {
-            solarPanelOutput = 3;
+            Game.buildings.entries.energyT2.resourcePerSecond.energy *= 2;
         }
     });
 
-    instance.efficiencyResearch = $.extend({}, techBase, {
+    instance.resourceEfficiencyResearch = $.extend({}, techBase, {
         name: 'Resource Efficiency',
         desc: 'Resource Efficiency increases the income of resources by 1%/s per purchase.',
         type: TECH_TYPE.UPGRADE,

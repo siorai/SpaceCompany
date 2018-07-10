@@ -1,3 +1,13 @@
+Game.solCenter = (function(){
+
+    var instance = {};
+
+    instance.entries = {};
+    instance.tabUnlocked = false;
+
+    return instance;
+}());
+
 // Sol Center Tab
 
 function unlockPlasmaResearch(){
@@ -64,8 +74,8 @@ function changeEmcAmount(event){
 }
 
 function refreshConversionDisplay() {
-	var maxEnergy = getMaxEnergy();
-	var maxPlasma = getMaxPlasma();
+	var maxEnergy = Game.resources.entries.energy.capacity;
+	var maxPlasma = Game.resources.entries.plasma.capacity;
 	for (var i = 0; i < resources.length; i++) {
 		var amountElement = $('#' + resources[i] + 'EmcAmount');
 		var costElement = $('#' + resources[i] + 'EmcVal');

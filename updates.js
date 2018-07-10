@@ -14,7 +14,7 @@ Game.updates = (function(){
 	instance.updateTemplate = Handlebars.compile('<li><span>{{desc}}</span></li>');
 
 	instance.initialise = function(){
-		if(metal != 0){
+		if(Game.resources.entries.metal.current != 0){
 			var extra = 0;
 			var target = $('#updateBox');
 			var html = this.updateTitleTemplate();
@@ -231,6 +231,16 @@ Game.updatesData = (function(){
 		desc: 'Fixed the 25/50 max Energy Efficiency Bug',
 		read: false
 	};
+
+	instance.oopResource = {
+		desc: 'Completely reworked the whole code of the resources tab to make features significantly easier to add and edit',
+		read: false
+	}
+
+	instance.changeResourceOrder = {
+		desc: 'Moved around the resources to a more logical order',
+		read: false
+	}
 
 	return instance;
 

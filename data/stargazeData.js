@@ -24,9 +24,9 @@ Game.stargazeData = (function(){
 		name: "Introduction",
 		para1: '"So here we are, at what seems like the end of your journey, but what you don\'t realise... is that this is just the beginning. Gazing up at the stars, you wonder what you could do with all of your newfound wealth and your empire in the solar system.',
 		para2: 'Suddenly, the Overlord reaches out to you and says: "You have come far in your time, and I feel that your life is slowing to an end after a long life of empire building. However, you have not met the expectations I thought you would."',
-		para3: '"Despite disapointing me and not achieving as much greatness as I would have liked, because of your loyalty and your dedication to me, I am prepared to give you another chance at Rebirth."',
-		para4: '"You will have many chances to impress me, as I will give you the ability of redemption when you feel the time has come and sacrifice is necessary. Your empire will grow even greater than before every time you rebirth, and as long as your alliegence lies with me, I will show you the way to galactic domination."',
-		para5: '"You will start over, a new life, but in exchange for your soul, I will reward your next self with the knowledge you have gained during your time in this universe and some of the most valuble material in this side of the multiverse: Dark Matter."',
+		para3: '"Despite disappointing me and not achieving as much greatness as I would have liked, because of your loyalty and your dedication to me, I am prepared to give you another chance at Rebirth."',
+		para4: '"You will have many chances to impress me, as I will give you the ability of redemption when you feel the time has come and sacrifice is necessary. Your empire will grow even greater than before every time you rebirth, and as long as your allegiance lies with me, I will show you the way to galactic domination."',
+		para5: '"You will start over, a new life, but in exchange for your soul, I will reward your next self with the knowledge you have gained during your time in this universe and one of the most valuable material in this side of the multiverse: Dark Matter."',
 		category: "general",
 		unlocked: true
 	};
@@ -34,8 +34,8 @@ Game.stargazeData = (function(){
 	instance.darkMatter = {
 		name: "Dark Matter",
 		desc: "Here, you can see how much Dark Matter you have acquired and the earnings you will recieve upon reset (in brackets). You can find out how DM is gained and can spend it on Dark-Matter-specific upgrades.",
+		potential: 0,
 		current: 0,
-		count: 0,
 		category: "general",
 		unlocked: true
 	};
@@ -140,7 +140,7 @@ Game.prestigeData = (function(){
 
 	instance.rebirth = {
 		name: "Rebirth",
-		desc: "Stepping forth into a new life is a great undertaking and not something to be done on a whim. Once certain, you may start afresh, maintaining the knowledge and experience you gave gained from your previous life and renew yourself, achieving greater and faster than before. You will keep any unspent dark matter, as well as your upgrades. <br><b>NB: You cannot rebirth without a sphere, even on second runs.<br> NB: You will keep all upgrades purchased in your previous life  </b>",
+		desc: "Stepping forth into a new life is a great undertaking and not something to be done on a whim. Once certain, you may start afresh, maintaining the knowledge and experience you habe gained from your previous life and renew yourself, achieving greater and faster than before. You will keep any unspent dark matter, as well as your upgrades. <br><b>NB: You cannot rebirth without a sphere, even on second runs.<br> NB: You will keep all upgrades purchased in your previous life  </b>",
 		cost: 0,
 		category: "intro",
 	};
@@ -199,22 +199,15 @@ Game.prestigeData = (function(){
 		category: "carnelian",
 		opinion: 3,
 		onApply: function(){
-			// old
-			gainNum = 20;
-			for(var resource in RESOURCE){
-				if(RESOURCE[resource] != "science")$('#' + RESOURCE[resource] + 'Gain').text(gainNum);
+			for(var id in Game.resources.entries){
+				Game.resources.entries[id].perClick = 20;
+				Game.resources.entries[id].displayNeedsUpdate = true;
 			}
-
-			// new
-			// for(var id in Game.resources.entries){
-			// 	Game.resources.entries[id].perClick = 20;
-			// 	Game.resources.entries[id].displayNeedsUpdate = true;
-			// }
 		},
 		remove: function(){
-	    	gainNum = 1;
-			for(var resource in RESOURCE){
-				if(RESOURCE[resource] != "science")$('#' + RESOURCE[resource] + 'Gain').text(gainNum);
+	    	for(var id in Game.resources.entries){
+				Game.resources.entries[id].perClick = 1;
+				Game.resources.entries[id].displayNeedsUpdate = true;
 			}
 	    },
 		achieved: false
@@ -222,30 +215,27 @@ Game.prestigeData = (function(){
 
 	instance.startingStorage = {
 		name: "Starting Storage",
-		desc: "Start with 6,400 max-storage on everything on rebirth. (Does not affect if over 6,400)",
+		desc: "Start with 6,400 max-storage on all resources every rebirth. (Does not affect if already over 6,400)",
 		cost: 8,
 		category: "carnelian",
 		opinion: 6,
 		onApply: function(){
-			// old
 			var newStorage = 6400;
-			for(var i = 0; i < resources.length; i++){
-				if(window[resources[i] + "Storage"] <= 6400){
-					window[resources[i] + "Storage"] = newStorage;
-					window[resources[i] + "NextStorage"] = newStorage * 2;
+			for(var id in Game.resources.entries){
+				var data = Game.resources.entries[id];
+				if(data.capacity < 6400){
+					data.capacity = 6400;
+					data.displayNeedsUpdate = true;
 				}
 			}
-
-			// new
 		},
 		remove: function(){
-	    	for(var i = 0; i < resources.length; i++){
-				if(window[resources[i] + "Storage"] <= 6400){
-					window[resources[i] + "Storage"] = 50;
-					window[resources[i] + "NextStorage"] = 50 * 2;
-				} else {
-					window[resources[i] + "Storage"] /= 128;
-					window[resources[i] + "NextStorage"] /= 128;
+	    	var newStorage = 50;
+			for(var id in Game.resources.entries){
+				var data = Game.resources.entries[id];
+				if(data.id != "energy" && data.id != "plasma"){
+					data.capacity = 50;
+					data.displayNeedsUpdate = true;
 				}
 			}
 	    },
@@ -273,7 +263,7 @@ Game.prestigeData = (function(){
 	/*************
 	** Prasnian **
 	*************/
-
+	
 	instance.T3Plasma = {
 		name: "Tier 3 Plasma",
 		desc: "Unlock the Electron Bath",
@@ -281,15 +271,31 @@ Game.prestigeData = (function(){
 		category: "prasnian",
 		opinion: 4,
 		onApply: function(){
-			document.getElementById("plasmaTier3").className = "";
+			Game.buildings.entries.plasmaT3.unlocked = true;
 		},
 		remove: function(){
-	    	document.getElementById("plasmaTier3").className = "hidden";
-	    	bath = 0;
+	    	Game.buildings.entries.plasmaT3.unlocked = false;
+	    	Game.buildings.entries.plasmaT3.current = 0;
+	    	console.log("updateCost()");
 	    	updateCost();
 	    },
 		achieved: false
 	};
+
+	instance.multiBuy = {
+		name: "Multi-Buy",
+		desc: "Unlock Buy X buttons on machines",
+		cost: 14,
+		category: "prasnian",
+		opinion: 9,
+		onApply: function(){
+			document.getElementsByClassName("multiBuy").className = "multiBuy";
+		},
+		remove: function(){
+	    	document.getElementsByClassName("multiBuy").className = "multiBuy hidden";
+	    },
+		achieved: false
+	}
 
 	instance.floor1Discount = {
 		name: "Floor 1 Discount",
@@ -299,6 +305,7 @@ Game.prestigeData = (function(){
 		opinion: 10,
 		onApply: function(){
 			floor1Price -= 0.15;
+			console.log("updateWonderCost");
             updateWonderCost();
 		},
 		remove: function(){
@@ -332,6 +339,7 @@ Game.prestigeData = (function(){
 		category: "prasnian",
 		opinion: 17,
 		onApply: function(){
+			console.log("autoEMC");
 			var updateList = document.getElementsByClassName("autoEmcHide");
 			for(var i = updateList.length-1; i >= 0; i--){
 				updateList[i].className = "autoEmcHide";
@@ -356,12 +364,11 @@ Game.prestigeData = (function(){
 		cost: 7,
 		category: "hyacinite",
 		opinion: 3,
-		rebirthStart: {lab:20},
 		onApply: function(){
-			lab += 20;
+			Game.buildings.entries.scienceT1.current += 20;
 		},
 		remove: function(){
-	    	lab -= 20
+	    	Game.buildings.entries.scienceT1.current -= 20;
 	    },
 		achieved: false
 	};
@@ -393,12 +400,11 @@ Game.prestigeData = (function(){
 		category: "hyacinite",
 		opinion: 14,
 		onApply: function(){
-			document.getElementById("labTier5").className = "";
+			Game.buildings.entries.scienceT5.unlocked = true;
 		},
 		remove: function(){
-	    	document.getElementById("labTier5").className = "hidden";
-	    	labT5 = 0;
-	    	updateLabCost();
+	    	Game.buildings.entries.scienceT5.unlocked = false;
+	    	Game.buildings.entries.scienceT5.current = 0;
 	    },
 		achieved: false
 	};
@@ -445,12 +451,27 @@ Game.prestigeData = (function(){
 		category: "kitrinos",
 		opinion: 17,
 		onApply: function(){
-			document.getElementById("batteriesT5").className = "";
+			document.getElementById("sto_energyT5").className = "";
 		},
 		remove: function(){
-	    	document.getElementById("batteriesT5").className = "hidden";
+	    	document.getElementById("sto_energyT5").className = "hidden";
 	    	batteryT5 = 0;
 	    	updateCost();
+	    },
+		achieved: false
+	};
+
+	instance.multiBuy = {
+		name: "Multi-Buy",
+		desc: "Unlock powers of mass destruction (and purchasing!)",
+		cost: 17,
+		category: "kitrinos",
+		opinion: 20,
+		onApply: function(){
+			document.getElementsByClassName("multiBuy").className = "multiBuy";
+		},
+		remove: function(){
+	    	document.getElementsByClassName("multiBuy").className = "multiBuy hidden";
 	    },
 		achieved: false
 	};
@@ -462,10 +483,16 @@ Game.prestigeData = (function(){
 		category: "kitrinos",
 		opinion: 20,
 		onApply: function(){
-			unlockTier5();
+			for(var id in Game.resources.entries){
+				if(id != "energy" && id != "plasma" && id != "meteorite" && id != "science" && id != "rocketFuel")
+					Game.buildings.entries[id + "T5"].unlocked = true;
+			}
 		},
 		remove: function(){
-	    	removeTier5();
+			for(var id in Game.resources.entries){
+				if(id != "energy" && id != "plasma" && id != "meteorite" && id != "science" && id != "rocketFuel")
+					Game.buildings.entries[id + "T5"].unlocked = false;
+			}
 	    },
 		achieved: false
 	};
@@ -519,11 +546,11 @@ Game.prestigeData = (function(){
 		category: "moviton",
 		opinion: 29,
 		onApply: function(){
-			document.getElementById("meteoriteTier3").className = "";
+			Game.buildings.entries.meteoriteT3.unlocked = true;
 		},
 		remove: function(){
-	    	document.getElementById("meteoriteTier3").className = "hidden";
-	    	smasher = 0;
+			Game.buildings.entries.meteoriteT3.unlocked = true;
+	    	Game.buildings.entries.meteoriteT3.current = 0;
 			updateCost();
 	    },
 		achieved: false
@@ -536,11 +563,11 @@ Game.prestigeData = (function(){
 		category: "moviton",
 		opinion: 36,
 		onApply: function(){
-			document.getElementById("meteoriteTier4").className = "";
+			Game.buildings.entries.meteoriteT4.unlocked = true;
 		},
 		remove: function(){
-	    	document.getElementById("meteoriteTier4").className = "hidden";
-	    	nebulous = 0;
+			Game.buildings.entries.meteoriteT4.unlocked = true;
+	    	Game.buildings.entries.meteoriteT4.current = 0;
 			updateCost();
 	    },
 		achieved: false

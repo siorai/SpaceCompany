@@ -4,25 +4,66 @@ Game.resourceCategoryData = (function () {
 
     instance.energy = {
         title: 'Energy',
-        category: 'energy'
+        category: 'energy',
+        page: 'resources',
+        order: 1, // 1st category item of the resources page
+        unlocked: false
+    };
+
+    instance.fabricated = {
+        title: 'Fabricated',
+        category: 'fabricated',
+        page: 'resources',
+        order: 2,
+        unlocked: false
     };
 
     instance.earth = {
-        class: 'collapseEarth',
         title: 'Earth Resources',
-        category: 'earth'
+        category: 'earth',
+        page: 'resources',
+        order: 3,
+        unlocked: true
     };
 
     instance.innerSol = {
-        class: 'collapseInnerPlanetary',
         title: 'Inner Planetary Resources',
-        category: 'innerSol'
+        category: 'innerSol',
+        page: 'resources',
+        order: 4,
+        unlocked: false
     };
 
     instance.outerSol = {
-        class: 'collapseOuterPlanetary',
         title: 'Outer Planetary Resources',
-        category: 'outerSol'
+        category: 'outerSol',
+        page: 'resources',
+        order: 5,
+        unlocked: false
+    };
+
+    instance.science = {
+        title: 'Science',
+        category: 'science',
+        page: 'tech',
+        order: 1, // 1st category item on the tech page
+        unlocked: false
+    };
+
+    instance.spacecraft = {
+        title: 'Spacecraft',
+        category: 'spacecrat',
+        page: 'solar',
+        order: 1, // 1st category item on the solar page
+        unlocked: true
+    };
+
+    instance.rocketFuel = {
+        title: 'Rocket Fuel',
+        category: 'rocketFuel',
+        page: 'solar',
+        order: 2,
+        unlocked: true
     };
 
     return instance;
@@ -40,37 +81,49 @@ Game.resourceData = (function () {
 
     instance.energy = {
         name: 'Energy',
-        desc: 'Energy is created by power sources such as steam engines, solar power and advances even to fusion power and nuclear energy. The maximum you can hold to start with is 100,000 Energy, but batteries are unlockable which can increase this.',
+        desc: 'Energy is created by power sources such as steam engines and solar panels, eventually advancing to fusion and nuclear energy. You can hold a maximum of 100,000 energy, unlocking batteries allows you to increase this.',
         icon: 'energyIcon',
         category: 'energy',
-        baseCapacity: 50000,
+        baseCapacity: 100000,
+        gainNum: 1,
+        manualgain: false,
         unlocked: false
     };
+
+    /*********************
+     * Fabricated Resources  *
+     *********************/
 
     instance.plasma = {
         name: 'Plasma',
         desc: 'Plasma is the 4th state of matter and is used by Tier 4 machines and large space structures as an extreme power source for your company.',
         icon: 'plasmaIcon',
-        category: 'energy',
-        baseCapacity: 50,
+        category: 'fabricated',
+        baseCapacity: 100000,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
-    instance.uranium = {
-        name: 'Uranium',
-        desc: 'Metal is one of the primary resources. It is used for many things, including storage upgrades, machinery and most things in space.',
-        icon: 'uraniumIcon',
-        category: 'energy',
+    instance.meteorite = {
+        name: 'Meteorite',
+        desc: 'Creating Meteorite is only possible from purer forms of energy than those created with earth technology. Therefore, Plasma is necessary to make the strong resource.',
+        icon: 'meteoriteIcon',
+        category: 'fabricated',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
-    instance.lava = {
-        name: 'Lava',
-        desc: 'Hard to handle and only found in volcanoes, Lava is one of the hardest resources to get.',
-        icon: 'lavaIcon',
-        category: 'energy',
+    instance.charcoal = {
+        name: 'Carbon',
+        desc: 'Carbon is a secondary tier resource and is used by Engines to produce power for your company. 1 Charcoal is created by burning wood',
+        icon: 'charcoalIcon',
+        category: 'fabricated',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -84,6 +137,8 @@ Game.resourceData = (function () {
         icon: 'oilIcon',
         category: 'earth',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -93,6 +148,8 @@ Game.resourceData = (function () {
         icon: 'metalIcon',
         category: 'earth',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: true
     };
 
@@ -102,16 +159,9 @@ Game.resourceData = (function () {
         icon: 'gemIcon',
         category: 'earth',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: true
-    };
-
-    instance.charcoal = {
-        name: 'Charcoal',
-        desc: 'Charcoal is a secondary tier resource and is used by Engines to produce power for your company. 1 Charcoal is created by burning wood',
-        icon: 'charcoalIcon',
-        category: 'earth',
-        baseCapacity: 50,
-        unlocked: false
     };
 
     instance.wood = {
@@ -120,6 +170,8 @@ Game.resourceData = (function () {
         icon: 'woodIcon',
         category: 'earth',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: true
     };
 
@@ -129,6 +181,30 @@ Game.resourceData = (function () {
         icon: 'siliconIcon',
         category: 'earth',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
+        unlocked: false
+    };
+
+    instance.uranium = {
+        name: 'Uranium',
+        desc: 'Uranium is used for nuclear power generation because when it is split, it releases huge amounts of Energy. For this reason, it is prominent in many advanced machines and for propulsion technology as it is useful for inter-star-system travel. Unfortunately, it is hard to get and it requires a lot of resources to radiation-proof equipment.',
+        icon: 'uraniumIcon',
+        category: 'earth',
+        baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
+        unlocked: false
+    };
+
+    instance.lava = {
+        name: 'Lava',
+        desc: 'Hard to handle and only found in volcanoes, Lava is one of the hardest resources to get.',
+        icon: 'lavaIcon',
+        category: 'earth',
+        baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -143,6 +219,8 @@ Game.resourceData = (function () {
         icon: 'lunariteIcon',
         category: 'innerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -152,6 +230,8 @@ Game.resourceData = (function () {
         icon: 'methaneIcon',
         category: 'innerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -161,6 +241,8 @@ Game.resourceData = (function () {
         icon: 'titaniumIcon',
         category: 'innerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -170,6 +252,8 @@ Game.resourceData = (function () {
         icon: 'goldIcon',
         category: 'innerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -179,6 +263,8 @@ Game.resourceData = (function () {
         icon: 'silverIcon',
         category: 'innerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -192,6 +278,8 @@ Game.resourceData = (function () {
         icon: 'hydrogenIcon',
         category: 'outerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -201,6 +289,8 @@ Game.resourceData = (function () {
         icon: 'heliumIcon',
         category: 'outerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
@@ -210,24 +300,67 @@ Game.resourceData = (function () {
         icon: 'iceIcon',
         category: 'outerSol',
         baseCapacity: 50,
+        gainNum: 1,
+        manualgain: true,
         unlocked: false
     };
 
-    instance.meteorite = {
-        name: 'Meteorite',
-        desc: 'Creating Meteorite is only possible from purer forms of energy than those created with earth technology. Therefore, Plasma is necessary to make the strong resource.',
-        icon: 'meteoriteIcon',
-        category: 'outerSol',
-        baseCapacity: 50,
-        unlocked: false
-    };
+    /******************************
+     *           Science           *
+     ******************************/
 
     instance.science = {
         name: 'Science Production',
         desc: 'Science is used for researching new technologies to further your progress in the game.',
         icon: 'scienceIcon',
+        category: 'science',
         baseCapacity: 1000000,
+        hideCapacity: true,
+        gainNum: 1,
+        manualgain: false,
         unlocked: false
+    };
+
+    /********************
+     * Rocket Fuel      *
+     ********************/
+
+    instance.rocketFuel = {
+        name: 'Rocket Fuel',
+        desc: 'Rocket fuel is created in chemical plants and is used to allow rockets to launch off into space and to travel to other planets and star systems.',
+        icon: 'rocketFuelIcon',
+        category: 'rocketFuel',
+        baseCapacity: 1000000,
+        hideCapacity: true,
+        gainNum: 1,
+        manualgain: false,
+        unlocked: true
+    };
+
+    /********************
+     * Rocket           *
+     ********************/
+
+    instance.satellite = {
+        name: "Satellite",
+        desc: "We'll need to build satellites to begin exploring the solar system.  We will also need a rocket to launch them.  Don't forget about rocket fuel!</b>",
+        icon: 'satelliteIcon',
+        category: "spacecraft",
+        baseCapacity: 0, // Important to hide the ps & storage
+        order: 1,
+        manualgain:  false,
+        unlocked: true
+    };
+
+    instance.rocket = {
+        name: "Rocket",
+        desc: "Building a rocket will allow for exploration around the solar system and will allow you to gather resources in space.",
+        icon: 'rocketIcon',
+        category: "spacecraft",
+        baseCapacity: 0, // Important to hide the ps & storage
+        order: 2,
+        manualgain:  false,
+        unlocked: true
     };
 
     return instance;
@@ -236,6 +369,7 @@ Game.resourceData = (function () {
 Game.storageData = (function(){
 
     var instance = {};
+    instance.entries = {};
 
     // Storage Upgrades
     var baseUpgradeData = {
@@ -246,7 +380,7 @@ Game.storageData = (function(){
         maxLevel: -1,
         resource: undefined,
         displayNeedsUpdate: true,
-
+        entries: {},
         buttonText: 'Upgrade Storage',
 
 
@@ -265,7 +399,7 @@ Game.storageData = (function(){
      * Energy Resources  *
      *********************/
 
-    instance.storageUpgradePlasma = $.extend({}, baseUpgradeData, {
+    instance.entries.plasma = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Plasma storage size to ',
         resource: 'plasma',
         cost: {
@@ -273,7 +407,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeUranium = $.extend({}, baseUpgradeData, {
+    instance.entries.uranium = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Uranium storage size to ',
         resource: 'uranium',
         cost: {
@@ -282,7 +416,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeLava = $.extend({}, baseUpgradeData, {
+    instance.entries.lava = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Lava storage size to ',
         resource: 'lava',
         cost: {
@@ -295,7 +429,7 @@ Game.storageData = (function(){
      * Earth Resources  *
      ********************/
 
-    instance.storageUpgradeOil = $.extend({}, baseUpgradeData, {
+    instance.entries.oil = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Oil storage size to ',
         resource: 'oil',
         cost: {
@@ -304,7 +438,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeMetal = $.extend({}, baseUpgradeData, {
+    instance.entries.metal = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Metal storage size to ',
         resource: 'metal',
         cost: {
@@ -312,7 +446,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeGem = $.extend({}, baseUpgradeData, {
+    instance.entries.gem = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Gem storage size to ',
         resource: 'gem',
         cost: {
@@ -321,7 +455,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeCharcoal = $.extend({}, baseUpgradeData, {
+    instance.entries.charcoal = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Charcoal storage size to ',
         resource: 'charcoal',
         cost: {
@@ -330,7 +464,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeWood = $.extend({}, baseUpgradeData, {
+    instance.entries.wood = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Wood storage size to ',
         resource: 'wood',
         cost: {
@@ -339,7 +473,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeSilicon = $.extend({}, baseUpgradeData, {
+    instance.entries.silicon = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Silicon storage size to ',
         resource: 'silicon',
         cost: {
@@ -352,7 +486,7 @@ Game.storageData = (function(){
      * Inner Planetary Resources  *
      ******************************/
 
-    instance.storageUpgradeLunarite = $.extend({}, baseUpgradeData, {
+    instance.entries.lunarite = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Lunarite storage size to ',
         resource: 'lunarite',
         cost: {
@@ -361,7 +495,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeMethane = $.extend({}, baseUpgradeData, {
+    instance.entries.methane = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Methane storage size to ',
         resource: 'methane',
         cost: {
@@ -370,7 +504,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeTitanium = $.extend({}, baseUpgradeData, {
+    instance.entries.titanium = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Titanium storage size to ',
         resource: 'titanium',
         cost: {
@@ -379,7 +513,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeGold = $.extend({}, baseUpgradeData, {
+    instance.entries.gold = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Gold storage size to ',
         resource: 'gold',
         cost: {
@@ -388,7 +522,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeSilver = $.extend({}, baseUpgradeData, {
+    instance.entries.silver = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Silver storage size to ',
         resource: 'silver',
         cost: {
@@ -401,7 +535,7 @@ Game.storageData = (function(){
      * Outer Planetary Resources  *
      ******************************/
 
-    instance.storageUpgradeHydrogen = $.extend({}, baseUpgradeData, {
+    instance.entries.hydrogen = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Hydrogen storage size to ',
         resource: 'hydrogen',
         cost: {
@@ -410,7 +544,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeHelium = $.extend({}, baseUpgradeData, {
+    instance.entries.helium = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Helium storage size to ',
         resource: 'helium',
         cost: {
@@ -419,7 +553,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeIce = $.extend({}, baseUpgradeData, {
+    instance.entries.ice = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Ice storage size to ',
         resource: 'ice',
         cost: {
@@ -428,7 +562,7 @@ Game.storageData = (function(){
         }
     });
 
-    instance.storageUpgradeMeteorite = $.extend({}, baseUpgradeData, {
+    instance.entries.meteorite = $.extend({}, baseUpgradeData, {
         desc: 'Upgrade your Meteorite storage size to ',
         resource: 'meteorite',
         cost: {

@@ -1,34 +1,79 @@
+Game.solar = (function(){
+
+    var instance = {};
+
+    instance.entries = {};
+    instance.categoryEntries = {};
+    instance.solarTypeCount = 0;
+    instance.tabUnlocked = false;
+
+    instance.initialise = function(){
+    	for (var id in Game.solarData) {
+            var data = Game.solarData[id];
+            this.solarTypeCount++;
+            this.entries[id] = $.extend({}, data, {
+                id: id,
+                htmlId: 'solar_' + id,
+                current: 0,
+                perSecond: 0,
+                iconPath: Game.constants.iconPath,
+                iconExtension: Game.constants.iconExtension,
+                displayNeedsUpdate: true,
+                hidden: false
+            });
+        }
+    };
+
+    instance.update = function(){
+
+    };
+
+    instance.save = function(){
+
+    };
+
+    instance.load = function(){
+    	
+    };
+
+    instance.explore = function(location){
+    	var data = this.entries[location];
+    	if(Game.resources.entries.rocketFuel.current >= data.cost.rocketFuel && !data.explored){
+    		Game.resources.entries.rocketFuel.current -= data.cost.rocketFuel;
+    		data.explored = true;
+    		if(data.resource){
+    			for(var i = 0; i < data.resource.length; i++){
+    				Game.resources.unlock(data.resource[i]);
+    			}
+    		}
+    		if(data.location){
+    			for(var i = 0; i < data.location.length; i++){
+    				this.unlock(data.location[i]);
+    			}
+    		}
+    		if(location == "wonderStation"){
+    			Game.wonder.tabUnlocked = true;
+    			newUnlock("wonder");
+				Game.notifySuccess("New Tab!", "You've unlocked the Wonders Tab!");
+    		}
+    		if(location == "solCenter"){
+    			Game.solCenter.tabUnlocked = true;
+    			newUnlock("solCenter");
+				Game.notifySuccess("New Tab!", "You've unlocked the Sol Center Tab!");
+    		}
+    	}
+    };
+
+    instance.unlock = function(location){
+    	this.entries[location].unlocked = true;
+    	this.entries[location].displayNeedsUpdate = true;
+    }
+
+    return instance;
+}());
+
+
 // Solar System Tab
-
-function getChemicalPlant(){
-	if(metal >= chemicalPlantMetalCost && gem >= chemicalPlantGemCost && oil >= chemicalPlantOilCost){
-		metal -= chemicalPlantMetalCost;
-		gem -= chemicalPlantGemCost;
-		oil -= chemicalPlantOilCost;
-		chemicalPlant += 1;
-		updateFuelProductionCost();
-	}
-}
-
-function getOxidisation(){
-	if(metal >= oxidisationMetalCost && gem >= oxidisationGemCost && oil >= oxidisationOilCost){
-		metal -= oxidisationMetalCost;
-		gem -= oxidisationGemCost;
-		oil -= oxidisationOilCost;
-		oxidisation += 1;
-		updateFuelProductionCost();
-	}
-}
-
-function getHydrazine(){
-	if(titanium >= hydrazineTitaniumCost && silicon >= hydrazineSiliconCost && gold >= hydrazineGoldCost){
-		titanium -= hydrazineTitaniumCost;
-		silicon -= hydrazineSiliconCost;
-		gold -= hydrazineGoldCost;
-		hydrazine += 1;
-		updateFuelProductionCost();
-	}
-}
 
 function updateFuelProductionCost(){
     chemicalPlantOilCost = Math.floor(500 * Math.pow(1.1,chemicalPlant));

@@ -53,19 +53,20 @@ var Game = (function() {
         refreshWonderBars();
         checkRedCost();
 
-        updateResourceEfficiencyDisplay();
-        updateEnergyEfficiencyDisplay();
-        updateScienceEfficiencyDisplay();
-        updateBatteryEfficiencyDisplay();
+        Game.tech.updateEfficiencies();
 
         legacyRefreshUI();
 
-        self.ui.updateBoundElements(delta);
+        //self.ui.updateBoundElements(delta);
 
         self.resources.update(delta);
+        Game.resources.updateResourcesPerSecond();
         self.buildings.update(delta);
         self.tech.update(delta);
+        self.solar.update(delta);
         self.settings.update(delta);
+
+
 
         self.updateAutoSave(delta);
 
@@ -78,6 +79,8 @@ var Game = (function() {
         refreshConversionDisplay();
         refreshTimeUntilLimit();
         gainAutoEmc();
+
+        self.buildings.updatePerSecondProduction = true;
 
         checkStorages();
 
@@ -140,12 +143,13 @@ var Game = (function() {
         this.resources.save(data);
         this.buildings.save(data);
         this.tech.save(data);
+        this.solar.save(data);
         this.settings.save(data);
         this.interstellar.save(data);
         this.stargaze.save(data);
         this.updates.save(data);
 
-        data = legacySave(data);
+        data.legacy = legacySave(data);
 
         localStorage.setItem("save",JSON.stringify(data));
         Game.notifyInfo('Game Saved', 'Your save data has been stored in localStorage on your computer');
@@ -164,10 +168,9 @@ var Game = (function() {
             this.buildings.load(data);
             this.stargaze.load(data);
             this.tech.load(data);
+            this.solar.load(data);
             this.interstellar.load(data); 
             this.updates.load(data);
-
-            legacyLoad(data);
 
             this.settings.load(data);
 
@@ -176,19 +179,15 @@ var Game = (function() {
             }
         }
 
-        console.log("Load Successful");
+        console.log("Data Loaded");
     };
 
     instance.updateUI = function(self){
         Game.settings.updateCompanyName();
         refreshResources();
-        refreshResearches();
-        refreshTabs();
 
-        updateCost();
         updateDysonCost();
         updateFuelProductionCost();
-        updateLabCost();
         updateWonderCost();
 
         if(Game.constants.enableMachineTab === true){
@@ -198,6 +197,89 @@ var Game = (function() {
         $('#versionLabel').text(versionNumber);
 
         self.interstellar.redundantChecking();
+    }
+
+
+    /**
+     * Combines two objects based on an attribute
+     * @param  {Object} from An Object with specific data, eg Game.resources
+     * @param  {string} cat  The category we'll base the link on
+     * @param  {Object} to   The target Object for linking
+     * @param  {string} con  The container to collect the linked Object in
+     * Runthrough: Game.resources.entries, 'category', Game.resourceCategoryData, 'items'
+     */
+    instance.combineGameObjects = function(from, cat, to, con) {
+        // Obj keys: [metal, energy] -> metal
+        Object.keys(from).map(function(item) {
+            // if Game.resources.entries.metal doesn't contain 'category', then complain
+            if (!contains(Object.keys(from[item]), cat)) {
+                console.log("Object 'from'->"+item+" doesn't contain attribute: "+cat);
+                return false;
+            }
+            // value = Game.resources.entries.metal.category = earth
+            var value = from[item][cat];
+            // if 'con' is set
+            if (con) {
+                // If earth not in Game.resourceCategoryData, create Game.resourceCategoryData.earth
+                if (!(value in to)) {to[value] = {};}
+                // If 'items' not in to.earth, create to.earth.items
+                if (!(con in to[value])) {to[value][con] = {};}
+                // if 'metal' not in to.earth.items, create to.earth.items.metal
+                if (!(item in to[value][con])) {to[value][con][item] = {};}
+                // set Game.resourceCategoryData.earth.items.metal to Game.resources.entries.metal
+                to[value][con][item] = from[item]    
+            } else {
+                if (!(value in to)) {to[value] = {};}
+                if (!(item in to[value])) {to[value][item] = {};}
+                to[value][item] = from[item]        
+            }
+        })
+    }
+
+    /**
+     * Creates a hierarchical Object with data per page -> category -> subcategory
+     */
+    instance.combineAllGameObjects = function() {
+        Game.pages = {};
+        // link Game.resourceDataCategories page to Game.pages
+        // This creates the Game.pages.resources.earth
+        this.combineGameObjects(Game.resourceCategoryData, 'page', Game.pages, '');
+        // link Game.resources.entries category to Game.resourceCategoryData
+        this.combineGameObjects(Game.resources.entries, 'category', Game.resourceCategoryData, 'items');
+        // link Game.resources.storageUpgrades resource to Game.resources.entries
+        this.combineGameObjects(Game.resources.storageUpgrades.entries, 'resource', Game.resources.entries, 'storUpgrades')
+        // link Game.buildings.entries to Game.resources.entries
+        this.combineGameObjects(Game.buildings.entries, 'resource', Game.resources.entries, 'items');
+        // link Game.resources.entries to buildings.storageEntries
+        this.combineGameObjects(Game.buildings.storageEntries, 'resource', Game.resources.entries, 'storBuildings');
+
+        // Link Game.techCategoryData page to Game.pages
+        this.combineGameObjects(Game.techCategoryData, 'page', Game.pages)
+        // Link Game.techData catgory to Game.techCatgoryData.technology items
+        this.combineGameObjects(Game.techData, 'category', Game.techCategoryData.research.items, 'items')
+
+        // Link Game.solarCategoryData page to Game.pages
+        this.combineGameObjects(Game.solarCategoryData, 'page', Game.pages);
+        this.combineGameObjects(Game.solarDestinationData, 'category', Game.solarCategoryData, 'items');
+        this.combineGameObjects(Game.solarData, 'id', Game.solarDestinationData, 'items')
+        // Link Game.solar.entries category to Game.resourceCategoryData
+        //this.combineGameObjects(Game.solarDestinationData, 'category', Game.solarCategoryData, 'items');
+        // Link it again, a level deeper and link on id
+        //this.combineGameObjects(Game.solar.entries, 'id', Game.solarDestinationData, 'items');
+
+
+        // Link Game.machinescategoryData page to Game.pages
+        //this.combineGameObjects(Game.machinesCategoryData, 'page', Game.pages);
+        // Link Game.solar.entries category to Game.solarCategoryData
+        //this.combineGameObjects(Game.solar.entries, 'category', Game.solarCategoryData, 'items');
+        //console.log(Game.machinesCategoryData)
+
+        // Link Game.resources.entries category to Game.machinesCategoryData
+        //this.combineGameObjects(Game.resources.entries, 'category', Game.machinesCategoryData, 'items');
+
+        console.log(Game.pages)
+
+
     }
 
     instance.handleOfflineGains = function(offlineTime) {
@@ -232,18 +314,60 @@ var Game = (function() {
 
         self.deleteInterval("Loading");
 
-        registerLegacyBindings();
-        self.ui.updateAutoDataBindings();
+        //registerLegacyBindings();
+        //self.ui.updateAutoDataBindings();
 
-        // Initialize first
+
+        // Initialise data first
         self.achievements.initialise();
         self.statistics.initialise();
         self.resources.initialise();
         self.buildings.initialise();
         self.tech.initialise();
+        self.solar.initialise();
         self.interstellar.initialise();
         self.stargaze.initialise();
+        // Create the collector Object; page -> categories -> items
+        self.combineAllGameObjects()
+        // Initialise UI
+        self.resourcesUI = new Templates.createPage('resources', 'Resources BETA', Game.pages.resources);
+        self.resourcesUI.initialise();
+        self.techUI = new Templates.createPage('tech', 'Research BETA', Game.pages.tech);
+        self.techUI.initialise();
+        self.solarUI = new Templates.createPage('solar', 'Solar System BETA', Game.pages.solar);
+        self.solarUI.initialise();
+        self.interstellarUI.initialise();
+        self.stargazeUI.initialise();
+        //self.machinesUI = new Templates.machinesUI('machines', '', 'Machines BETA', Game.pages.machines);
+        //self.machinesUI.initialise();
+        // All pages are created, now do the bindings
+        Templates.uiFunctions.linkEvents();
+        // Refresh all actions
 
+        //Game.ui.updateAutoDataBindings();
+        
+
+        console.log("test from start");
+        console.log("storage");
+        console.log("add all techData tabAlerts")
+        console.log("turn red")
+        console.log("0 energy, turn resources off")
+        console.log("all tech upgrades")
+        console.log("saving")
+        console.log("combine construct and destroy +/-")
+        console.log("stats")
+        console.log("dmBoost")
+        console.log("efficiencyBoosts")
+        console.log("energy toggle")
+        console.log("plasma toggle core.js:180")
+        console.log("charcoal toggle core.js:140")
+        console.log("meteorite toggle core.js:172")
+        console.log("toggles legacyUI.js:125")
+        console.log("notify storage")
+        console.log("redo solar system")
+        console.log("redo wonder station")
+        console.log("implement new resources into interstellar and stargaze")
+        console.log("dm boosts antimatter and rocketFuel")
         // Now load
         self.load();
 
@@ -266,7 +390,12 @@ var Game = (function() {
         // Do this in a setInterval so it gets called even when the window is inactive
         window.setInterval(function(){ Game.fixedUpdate(); },100);
 
-        console.debug("Load Complete");
+        console.log("Initialisation Complete");
+        Templates.uiFunctions.refreshElements('all', 'all');
+        Templates.uiFunctions.unlock('metalT1');
+        Templates.uiFunctions.unlock('woodT1');
+        Templates.uiFunctions.unlock('gemT1');
+        document.getElementById('resourcesTab').click();
 
     };
 
@@ -406,7 +535,4 @@ var Game = (function() {
 
     return instance;
 }());
-
-window.onload = function(){
-    Game.start();
-};
+// Load event moved to gameTabUI

@@ -280,7 +280,7 @@ Game.stargazeUI = (function(){
         if(sphere != 0)sphereDM += 10
         sphereDM += sphere*5;
         //Research
-        var researchDM = Math.floor((Game.tech.entries.efficiencyResearch.current + Game.tech.entries.energyEfficiencyResearch.current + Game.tech.entries.scienceEfficiencyResearch.current + Game.tech.entries.batteryEfficiencyResearch.current)/25)*2; //25 = 2;
+        var researchDM = Math.floor((Game.tech.entries.resourceEfficiencyResearch.current + Game.tech.entries.energyEfficiencyResearch.current + Game.tech.entries.scienceEfficiencyResearch.current + Game.tech.entries.batteryEfficiencyResearch.current)/25)*2; //25 = 2;
         //Rank
         var rankDM = Game.achievements.rank * 2;
         //Swarms
@@ -299,11 +299,11 @@ Game.stargazeUI = (function(){
 
         DM += wonderDM + sphereDM + researchDM + rankDM + swarmDM;
         if(Game.stargaze.entries.darkMatter){
-            Game.stargaze.entries.darkMatter.current = DM;
-            $('#stargazeNavdarkMatter_current').text(DM);
+            Game.stargaze.entries.darkMatter.potential = DM;
+            $('#stargazeNavdarkMatter_potential').text(DM);
         }
 
-        $('#stargazeNavdarkMatter_count').text(Game.stargaze.entries.darkMatter.count);
+        $('#stargazeNavdarkMatter_current').text(Game.stargaze.entries.darkMatter.current);
     }
 
     instance.buildCostDisplay = function(observerArray, data) {
@@ -375,8 +375,6 @@ Game.stargazeUI = (function(){
 
         return resultHtml;
     };
-
-    Game.uiComponents.push(instance);
 
     return instance;
 
